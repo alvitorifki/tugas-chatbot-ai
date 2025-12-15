@@ -1,10 +1,19 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./App.css";
 
 function App() {
   const [input, setInput] = useState("");
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [chat, loading]);
 
   const send = async () => {
     if (!input.trim() || loading) return;
@@ -13,15 +22,12 @@ function App() {
     setInput("");
     setLoading(true);
 
-    // masukin pesan user dulu
     setChat((prev) => [...prev, { role: "user", text: userMessage }]);
 
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userMessage }),
       });
 
@@ -29,12 +35,12 @@ function App() {
 
       setChat((prev) => [
         ...prev,
-        { role: "ai", text: data.reply || "AI ga jawab, cek API." },
+        { role: "ai", text: data.reply || "AI diem. API cek." },
       ]);
     } catch (err) {
       setChat((prev) => [
         ...prev,
-        { role: "ai", text: "Error. Backend / API bermasalah." },
+        { role: "ai", text: "Error. Backend lagi ngamuk." },
       ]);
     } finally {
       setLoading(false);
@@ -44,11 +50,21 @@ function App() {
   return (
     <div className="container">
       <div className="chat-box">
-        <h2>AI Chatbot</h2>
 
+        {/* HEADER */}
+        <div
+          className="header glitch"
+          data-text="NEURAL INTERFACE // ONLINE"
+        >
+          NEURAL INTERFACE // ONLINE
+        </div>
+
+        {/* MESSAGES */}
         <div className="messages">
           {chat.length === 0 && (
-            <div className="empty">Mulai nanya apa aja.</div>
+            <div className="empty">
+              System online. Kirim perintah.
+            </div>
           )}
 
           {chat.map((c, i) => (
@@ -61,19 +77,24 @@ function App() {
           ))}
 
           {loading && (
-            <div className="bubble ai">AI lagi mikir…</div>
+            <div className="bubble ai typing">
+              processing
+            </div>
           )}
+
+          <div ref={messagesEndRef} />
         </div>
 
+        {/* INPUT */}
         <div className="input-area">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ketik pesan..."
+            placeholder="Type command..."
             onKeyDown={(e) => e.key === "Enter" && send()}
           />
           <button onClick={send} disabled={loading}>
-            Kirim
+            SEND
           </button>
         </div>
       </div>
