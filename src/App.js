@@ -56,7 +56,7 @@ function App() {
           className="header glitch"
           data-text="NEURAL INTERFACE"
         >
-          NEURAL INTERFACE // ONLINE
+          NEURAL INTERFACE
         </div>
 
         {/* MESSAGES */}
